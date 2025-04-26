@@ -11,7 +11,9 @@ app = Flask(__name__)
 # creating the first route for index page
 @app.route("/")
 def index():
-    return 'Salut mes amies'
+    return f'Homepage'
+
+
 
 
 if __name__ == '__main__':
