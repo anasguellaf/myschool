@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %} myschool - Student Page {% endblock title %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center p-2">
+        <h5>Students list</h5>
+        <button class="btn btn-primary" type="submit"><i class="bi bi-plus"></i>Add New Student </button>
+</div>
+<hr class="border border-danger border-1 opacity-50">
+
+
+<table class="table">
+    <thead>
+      <tr>
+        <th scope="col">#</th>
+        <th scope="col">Full name</th>
+        <th scope="col">Email</th>
+        <th scope="col">Date joined</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <th scope="row">1</th>
+        <td>Otto Mark</td>
+        <td>mark@gmail.com</td>
+        <td>30/02/2024</td>
+      </tr>
+      <tr>
+        <th scope="row">2</th>
+        <td>Ahmed Thornton</td>
+        <td>Thornton@gmail.com</td>
+        <td>12/01/2025</td>
+      </tr>
+      <tr>
+        <th scope="row">3</th>
+        <td>John Doe</td>
+        <td>Doe@yahoo.fr</td>
+        <td>13/05/2023</td>
+      </tr>
+    </tbody>
+  </table>
+<p class="text-muted">55 row found</p>
+{% endblock content %}

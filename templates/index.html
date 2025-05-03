@@ -1,67 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="" />
-        <meta name="author" content="" />
-        <title>Myschool - Your school managment system</title>
-        <!-- Favicon-->
-        <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/favicon.ico') }}" />
-        <!-- Core theme CSS (includes Bootstrap)-->
-        <link href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet" />
-    </head>
-    <body>
+{% extends "base.html" %}
+{% block title %}Myshool - Homepage{% endblock title %}
 
-        <div class="d-flex" id="wrapper">
-            <!-- Sidebar-->
-            <div class="border-end bg-white" id="sidebar-wrapper">
-                <div class="sidebar-heading border-bottom bg-light">Myschool APP</div>
-                <div class="list-group list-group-flush">
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Dashboard</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Students</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Teachers</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Schedual</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Grades</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Homeworks</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Posts</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Quizzes</a>
-                </div>
+{% block content %}
+
+<div class="alert alert-success mt-2" role="alert">
+    <h4 class="alert-heading">Welcome back, Admin!</h4>
+    <p>You have successfully accessed the admin dashboard. Here, you can manage students, courses, and do more activity.</p>
+    <hr>
+    <p class="mb-0">Use the side menu provided to navigate smoothly.</p>
+</div>
+
+<div class="d-md-flex justify-content-around">
+    <!-- Card 1-->
+    <div class="card mb-3">
+        <div class="card-header">Teachers count</div>
+        <div class="card-body text-center text-success">
+            <h5 class="card-title">32</h5>
+        </div>
+        <div class="card-footer">
+            <a href="#" class="card-link">Go to Teachers table</a>
+        </div>
+    </div>
+
+    <!-- Card 2-->
+    <div class="card mb-3">
+        <div class="card-header">Students count</div>
+        <div class="card-body text-center text-success">
+            <h5 class="card-title">55</h5>
+        </div>
+        <div class="card-footer">
+            <a href="#" class="card-link">Go to Students table</a>
+        </div>
+    </div>
+
+    <!-- Card 3-->
+    <div class="card mb-3">
+        <div class="card-header">Courses count</div>
+        <div class="card-body text-center text-success">
+            <h5 class="card-title">120</h5>
+        </div>
+        <div class="card-footer">
+            <a href="#" class="card-link">Go to Courses table</a>
+        </div>
+    </div>
+
+        <!-- Card 3-->
+        <div class="card mb-3">
+            <div class="card-header">Posts count</div>
+            <div class="card-body text-center text-success">
+                <h5 class="card-title">150</h5>
             </div>
-            <!-- Page content wrapper-->
-            <div id="page-content-wrapper">
-                <!-- Top navigation-->
-                <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-                    <div class="container-fluid">
-                        <button class="btn btn-primary" id="sidebarToggle">Menu</button>
-                        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
-                        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                            <ul class="navbar-nav ms-auto mt-2 mt-lg-0">
-                                <li class="nav-item active"><a class="nav-link" href="#!">Home</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#!">Attendance</a></li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Account</a>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="#!">Admin</a>
-                                        <a class="dropdown-item" href="#!">Messages</a>
-                                        <div class="dropdown-divider"></div>
-                                        <a class="dropdown-item" href="#!">Settings</a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </nav>
-                <!-- Page content-->
-                <div class="container-fluid">
-                    <h1 class="mt-4">Dashboard</h1>
-                   <!-- Page content goes here -->
-                </div>
+            <div class="card-footer">
+                <a href="#" class="card-link">Go to Posts table</a>
             </div>
         </div>
-        <!-- Bootstrap core JS-->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Core theme JS-->
-        <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
-    </body>
-</html>
+
+</div>
+{% endblock content %}

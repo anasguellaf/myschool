@@ -6,13 +6,17 @@ from flask import Flask, render_template
 app = Flask(__name__)
 
 
-# comment
 
 # creating the first route for index page
-@app.route("/")
-def index():
+@app.route("/", methods=['GET', 'POST'])
+def home():
     return render_template('index.html')
 
+
+# creating the student route
+@app.route("/student", methods=['GET', 'POST'])
+def student_list():
+    return render_template('student.html')
 
 
 
