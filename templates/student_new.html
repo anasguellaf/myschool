@@ -1,36 +1,65 @@
 {% extends "base.html" %}
-{% block title %} myschool - New student Form {% endblock title %}
+{% block title %} myschool - New Student Form {% endblock title %}
 {% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
 
-<form method="POST" action="">
-    
-        {{ form.hidden_tag() }}
+        <form method="POST" action="">
+            {{ form.hidden_tag() }}
 
-    <div class="mb-3">
-        {{ form.fullname.label(class="form-label") }}
-        {{ form.fullname(class="form-control") }}
+            <div class="mb-3">
+                {{ form.fullname.label(class="form-label") }}
+                {{ form.fullname(class="form-control") }}
+                {% if form.fullname.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.fullname.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.tel.label(class="form-label") }}
+                {{ form.tel(class="form-control") }}
+                {% if form.tel.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.tel.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control") }}
+                {% if form.email.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.email.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="mb-3">
+                {{ form.joining_date.label(class="form-label") }}
+                {{ form.joining_date(class="form-control") }}
+                {% if form.joining_date.errors %}
+                    <div class="invalid-feedback">
+                        {% for error in form.joining_date.errors %}
+                            {{ error }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Full-Width Submit Button (Corrected 'd-grid') -->
+            <div class="d-grid gap-2 mt-4">
+                {{ form.btn_submit(class="btn btn-primary btn-md") }}
+            </div>
+        </form>
     </div>
-
-    <div class="mb-3">
-        {{ form.tel.label(class="form-label") }}
-        {{ form.tel(class="form-control") }}
-    </div>
-
-    <div class="mb-3">
-        {{ form.email.label(class="form-label") }}
-        {{ form.email(class="form-control") }}
-    </div>
-
-    <div class="mb-3">
-        {{ form.joining_date.label(class="form-label") }}
-        {{ form.joining_date(class="form-control") }}
-    </div>
-
-        {{ form.btn_submit(class="btn btn-primary") }}
-
-</form>
-
-
-
-
+</div>
 {% endblock content %}

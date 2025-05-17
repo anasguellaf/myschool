@@ -21,7 +21,7 @@
                 <div class="list-group list-group-flush">
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{{ url_for('home') }}">Dashboard</a>
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{{  url_for('student_list') }}">Students</a>
-                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Teachers</a>
+                    <a class="list-group-item list-group-item-action list-group-item-light p-3" href="{{  url_for('teachers_list') }}">Teachers</a>
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Schedual</a>
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Grades</a>
                     <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">Homeworks</a>
@@ -55,6 +55,21 @@
                 </nav>
                 <!-- Page content-->
                 <div class="container-fluid">
+                    <div class="row p-2">
+                        <div class="col">
+                            <!-- Flash Messages (Place near the top of the form) -->
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
+                                        {{ message }}
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>
+                    </div>
                     {% block content %}{% endblock content %}
                    <!-- Page content goes here -->
                 </div>
