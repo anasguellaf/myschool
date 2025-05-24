@@ -17,6 +17,7 @@
         <th scope="col">Tel</th>
         <th scope="col">Email</th>
         <th scope="col">Date joined</th>
+        <th>Action button</th>
       </tr>
     </thead>
     <tbody>
@@ -27,9 +28,16 @@
         <td>{{ student.tel }}</td>
         <td>{{ student.email }}</td>
         <td>{{ student.joining_date }}</td>
+        <td>
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
+            <button type="button" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></button>
+            <button type="button" class="btn btn-primary btn-sm"><i class="bi bi-eye"></i></button>
+          </div>
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-<p class="text-muted">55 row found</p>
+<p class="text-muted">{{ counter }} students found</p>
 {% endblock content %}

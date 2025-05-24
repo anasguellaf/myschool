@@ -12,24 +12,30 @@
 <table class="table">
     <thead>
       <tr>
-        <th scope="col">#</th>
+        <th scope="col">ID</th>
         <th scope="col">Full name</th>
         <th scope="col">Tel</th>
         <th scope="col">Email</th>
+        <th scope="col">Experience</th>
+        <th scope="col">Subject</th>
         <th scope="col">Date joined</th>
       </tr>
     </thead>
     <tbody>
-      {% for student in students %}
-       <tr>
-        <th scope="row">{{ student.id }}</th>
-        <td>{{ student.fullname }}</td>
-        <td>{{ student.tel }}</td>
-        <td>{{ student.email }}</td>
-        <td>{{ student.joining_date }}</td>
-      </tr>
+      {% for prof in teachers %}
+      
+        <tr>
+          <td>{{ prof.id }}</td>
+          <td>{{ prof.fullname }}</td>
+          <td>{{ prof.tel }}</td>
+          <td>{{ prof.email }}</td>
+          <td>{{ prof.experience }}</td>
+          <td>{{ prof.subject }}</td>
+          <td>{{ prof.joining_date }}</td>
+        </tr>
+
       {% endfor %}
     </tbody>
   </table>
-<p class="text-muted">55 row found</p>
+<p class="text-muted">{{ counter }} teachers found</p>
 {% endblock content %}

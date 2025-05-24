@@ -52,14 +52,16 @@ with app.app_context():
 @app.route("/", methods=['GET', 'POST'])
 def home():
     student_count = Student.select().count()
-    return render_template('index.html',student_count=student_count)
+    teacher_count = Teacher.select().count()
+    return render_template('index.html',student_count=student_count, teacher_count=teacher_count)
 
 
 # creating the student route
 @app.route("/student", methods=['GET', 'POST'])
 def student_list():
     students = Student.select()
-    return render_template('student.html',students=students)
+    counter = students.count()
+    return render_template('student.html',students=students, counter = counter)
 
 # add new student route
 
@@ -82,19 +84,19 @@ def add_student():
     return render_template('student_new.html',form=form)
 
 
-
 # Decorator 
 @app.route('/teacher')
-def teachers_list():
-    return render_template('teacher.html')
+def teachers_list():   
+    # selecting teachers
+    query = Teacher.select()
+    counter = query.count()
+    return render_template('teacher.html', teachers = query, counter = counter)
 
 
 @app.route('/teacher/new', methods=['POST','GET'])
 def add_teacher():
     form = TeacherForm()
     if request.method == 'POST' and form.validate_on_submit():
-        
-        # 2) insert new teacher into database
         
         Teacher.create(
             fullname = form.fullname.data,
@@ -103,11 +105,16 @@ def add_teacher():
             experience = form.experience.data,
             subject = form.subject.data,
         )
-        
+        flash('Teacher has been added successfully!', 'success')
         return redirect(url_for('teachers_list'))
-        
-        
-    return render_template('teacher_new.html', form=form)
+    
+    return render_template('teacher_new.html', form = form)
+
+    
+
+@app.route('/schedual')
+def schedual():
+    return render_template('scheduals.html')
 
 
 
