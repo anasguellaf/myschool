@@ -14,11 +14,21 @@ app.secret_key = "code secret"
 db = SqliteDatabase("myschool.db")
 
 
+
+class Group(db.Model):
+    name = CharField(unique=True)
+    created_at = DateTimeField(default=datetime.now, formats='%Y-%m-%d %H:%M')
+    
+    class Meta:
+        database = db
+        
+        
 class Student(db.Model):
     fullname = CharField()
     tel = CharField()
     email = CharField(unique=True)
     joining_date = DateTimeField(default=datetime.now, formats='%Y-%m-%d %H:%M:%S')
+    group = ForeignKeyField(Group, backref='students', null=True)
     
     class Meta:
         database = db
@@ -36,11 +46,13 @@ class Teacher(db.Model):
         database = db
 
 
+    
+
 
 
 def initialize_database():
     db.connect()
-    db.create_tables([Student, Teacher])
+    db.create_tables([Student, Teacher, Group])
     db.close()
 
 
@@ -84,6 +96,20 @@ def add_student():
     return render_template('student_new.html',form=form)
 
 
+@app.route('/showdeleteconfirm/<student_id>')
+def show_confirmation(student_id):
+    # Get student by it's ID
+    student = Student.get_by_id(student_id)
+    return render_template('delete_confirmation.html',student=student)
+
+
+@app.route('/student/delete/<student_id>')
+def delete_student(student_id):
+    # delete student from database
+    
+    return render_template('delete_confirmation.html',student=student_id)
+
+
 # Decorator 
 @app.route('/teacher')
 def teachers_list():   
@@ -110,7 +136,6 @@ def add_teacher():
     
     return render_template('teacher_new.html', form = form)
 
-    
 
 @app.route('/schedual')
 def schedual():

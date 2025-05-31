@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %} myschool - Confirmation {% endblock title %}
+{% block content %}
+
+<div class="alert alert-success" role="alert">
+  <h4 class="alert-heading">Delete Student! {{ student.fullname }}</h4>
+  <p>Deleting a student will delete all the things related to it, like groups , marks , posts and so on.</p>
+  <hr>
+  <p class="mb-0">
+    <a  href="{{ url_for('delete_student', student_id=student) }}" type="button" class="btn btn-danger">Delete</a>
+    <a href="{{ url_for('student_list') }}" type="button" class="btn btn-secondary">cancel</a>
+  </p>
+</div>
+
+{% endblock content %}

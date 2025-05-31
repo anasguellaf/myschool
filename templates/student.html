@@ -29,11 +29,12 @@
         <td>{{ student.email }}</td>
         <td>{{ student.joining_date }}</td>
         <td>
-          <div class="btn-group" role="group" aria-label="Basic example">
-            <button type="button" class="btn btn-danger btn-sm"><i class="bi bi-trash"></i></button>
-            <button type="button" class="btn btn-warning btn-sm"><i class="bi bi-pencil-square"></i></button>
-            <button type="button" class="btn btn-primary btn-sm"><i class="bi bi-eye"></i></button>
+          <div class="btn-group" role="group" aria-label="action button group">
+            <a href="{{ url_for('show_confirmation', student_id=student.id) }}" type="button" class="btn btn-danger"><i class="bi bi-trash2"></i></a>
+            <a href="" type="button" class="btn btn-wanrning"><i class="bi bi-pencil"></i></a>
+            <a href="" type="button" class="btn btn-primary"><i class="bi bi-eye"></i></a>
           </div>
+
         </td>
       </tr>
       {% endfor %}
