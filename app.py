@@ -137,6 +137,21 @@ def add_teacher():
     return render_template('teacher_new.html', form = form)
 
 
+@app.route('/delete-teacher-confirmation/<int:teacher_id>')
+def teacherDeleteConfirmation(teacher_id):
+    # Returns Teacher with id = teacher_id.
+    teacher = Teacher.get_by_id(teacher_id)  
+    return render_template('teacher_delete_confirmation.html', teacher=teacher)
+
+
+@app.route('/delete/teacher/<int:teacher_id>')
+def delete_teacher(teacher_id):
+    # Delete the teacher with the id teacher_id from the Database
+    teacher = Teacher.get_by_id(teacher_id)
+    teacher.delete_instance()
+    flash("Teacher was deleted successfully","success")
+    return redirect(url_for('teachers_list'))
+
 @app.route('/schedual')
 def schedual():
     return render_template('scheduals.html')

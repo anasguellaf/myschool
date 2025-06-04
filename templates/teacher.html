@@ -35,9 +35,9 @@
           <td>{{ prof.joining_date }}</td>
           <td>
             <div class="btn-group" role="group" aria-label="Basic example">
-              <button type="button" class="btn btn-danger">Delete</button>
-              <button type="button" class="btn btn-warning">Edit</button>
-              <button type="button" class="btn btn-info">View</button>
+              <a href="{{ url_for('teacherDeleteConfirmation', teacher_id=prof.id) }}" type="button" class="btn btn-danger">Delete</a>
+              <a href="" type="button" class="btn btn-warning">Edit</a>
+              <a href="" type="button" class="btn btn-info">View</a>
             </div>
           </td>
         </tr>
