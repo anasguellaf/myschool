@@ -32,7 +32,9 @@
           <div class="btn-group" role="group" aria-label="action button group">
             <a href="{{ url_for('show_confirmation', student_id=student.id) }}" type="button" class="btn btn-danger"><i class="bi bi-trash2"></i></a>
             <a href="" type="button" class="btn btn-wanrning"><i class="bi bi-pencil"></i></a>
-            <button href="" type="button" class="btn btn-primary" class="viewStudent" data-bs-toggle="modal" data-bs-target="#exampleModal" data-student-name="{{ student.fullname }}"><i class="bi bi-eye"></i></button>
+            <button href="" type="button" class="btn btn-primary" class="viewStudent" data-bs-toggle="modal" data-bs-target="#studentModal" data-name="{{ student.fullname }}" data-tel="{{ student.tel }}" data-email="{{ student.email }}" data-joining="{{ student.joining_date }}">
+              <i class="bi bi-eye"></i>
+            </button>
           </div>
         </td>
       </tr>
@@ -42,17 +44,17 @@
 <p class="text-muted">{{ counter }} students found</p>
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Student Name</h1>
+      <div class="modal-header bg-info">
+        <h1 class="modal-title fs-5" id="modalName"></h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Student Tel</p>
-        <p>Student Age</p>
-        <p>Student Groupe</p>
+            <p><strong>Tel:</strong> <span id="modalTel"></span></p>
+            <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+            <p><strong>Joining Date:</strong> <span id="modalJoiningDate"></span></p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

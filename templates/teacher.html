@@ -37,7 +37,7 @@
             <div class="btn-group" role="group" aria-label="Basic example">
               <a href="{{ url_for('teacherDeleteConfirmation', teacher_id=prof.id) }}" type="button" class="btn btn-danger">Delete</a>
               <a href="" type="button" class="btn btn-warning">Edit</a>
-              <a href="" type="button" class="btn btn-info">View</a>
+              <a href="{{ url_for('teacher_info', teacher_id=prof.id) }}" type="button" class="btn btn-info">View</a>
             </div>
           </td>
         </tr>

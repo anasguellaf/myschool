@@ -106,9 +106,10 @@ def show_confirmation(student_id):
 @app.route('/student/delete/<student_id>')
 def delete_student(student_id):
     # delete student from database
-    
-    return render_template('delete_confirmation.html',student=student_id)
-
+    student = Student.get_by_id(student_id)
+    student.delete_instance()
+    flash('Student deleted successfully', 'success')
+    return redirect(url_for('student_list'))
 
 # Decorator 
 @app.route('/teacher')
@@ -151,6 +152,11 @@ def delete_teacher(teacher_id):
     teacher.delete_instance()
     flash("Teacher was deleted successfully","success")
     return redirect(url_for('teachers_list'))
+
+@app.route('/teacher/<int:teacher_id>')
+def teacher_info(teacher_id):
+    return render_template('teacher_view.html')
+
 
 @app.route('/schedual')
 def schedual():
