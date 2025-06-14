@@ -1,5 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Myshool - Teacher Information{% endblock title %}
 {% block content %}
-<h1>Teacher information</h1>
+<div class="row">
+    <div class="col">
+            <div class="card" style="width: 20rem;">
+                <img src="{{ url_for('static', filename='images/teacher_sample.jpg') }}" class="card-img-top" alt="{{ teacher.fullname }} profile picture">
+                <div class="card-body">
+                    <h5 class="card-title">{{ teacher.fullname }}</h5>
+
+                     <ul class="list-group list-group-flush">
+                            <li class="list-group-item">
+                                <i class="bi bi-telephone me-2"></i>{{ teacher.tel }}
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-envelope me-2"></i>{{ teacher.email}}
+                            </li>
+                            <li class="list-group-item">
+                                <i class="bi bi-tag me-2"></i>{{ teacher.subject }}
+                            </li>
+                             <li class="list-group-item">
+                                <i class="bi bi-calendar me-2"></i>{{ teacher.joining_date }}
+
+
+                            </li>
+                    </ul>
+                    
+                </div>
+                <div class="card-footer">
+                    <a href="{{ url_for('teachers_list') }}" class="btn btn-outline-secondary">All Teachers</a>
+                </div>
+                </div>
+    </div>
+</div>
+
+
+
 {% endblock content %}

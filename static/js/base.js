@@ -1,6 +1,4 @@
 
-
-
 const studentModal = document.getElementById('studentModal');
 studentModal.addEventListener('show.bs.modal', event => {
     

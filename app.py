@@ -40,7 +40,7 @@ class Teacher(db.Model):
     email = CharField(unique=True)
     experience = IntegerField()
     subject = CharField()
-    joining_date = DateTimeField(default=datetime.now, formats='%Y-%m-%d %H:%M:%S')
+    joining_date = DateTimeField(default=datetime.now, formats='%Y-%m-%d')
     
     class Meta:
         database = db
@@ -155,7 +155,9 @@ def delete_teacher(teacher_id):
 
 @app.route('/teacher/<int:teacher_id>')
 def teacher_info(teacher_id):
-    return render_template('teacher_view.html')
+    # get the teacher from the database where id = teacher_id
+    teacher = Teacher.get_by_id(teacher_id)
+    return render_template('teacher_view.html', teacher=teacher)
 
 
 @app.route('/schedual')
