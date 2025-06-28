@@ -1,0 +1,1017 @@
+{% extends "base.html" %} {% load static %} {% block meta %}
+<meta name="description" content="{{ course.short_description }}" />
+<meta
+  name="keywords"
+  content="تعلم البرمجة عن بعد بالمغرب,البرمجة للمبتدئين,تعلم البرمجة,تعلم البرمجة, {{ course.title }}, دورات برمجة, كوداسيتي"
+/>
+<meta name="robots" content="index, follow" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="article" />
+<meta property="og:title" content="{{ course.title }}" />
+<meta property="og:description" content="{{ course.short_description }}" />
+<meta property="og:image" content="{{ course.thumbnail.url }}" />
+<meta property="og:locale" content="ar_MA" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="{{ course.title }}" />
+<meta name="twitter:description" content="{{ course.short_description }}" />
+<meta name="twitter:image" content="{{ course.thumbnail.url }}" />
+{% endblock %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/course.css' %}" />
+<style>
+  /* Animation styles */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate__animated {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+  }
+
+  .animate__fadeInUp {
+    animation-name: fadeInUp;
+  }
+
+  /* Completion message styling */
+  #courseCompletionContainer .alert {
+    border-left: 4px solid #28a745;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  #courseCompletionContainer .fa-trophy {
+    color: #ffc107;
+  }
+
+  /* Progress bar styling */
+  #courseProgressBar {
+    transition: width 0.3s ease;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="course-detail-container py-5">
+  <div class="container">
+    <!-- Course Header Section -->
+    <div class="course-header mb-5">
+      <div class="row">
+        <div class="col-md-8">
+          <h1 class="mb-3">{{ course.title }}</h1>
+          <!-- Add level badge here -->
+          <div class="course-meta mb-4 d-flex flex-wrap gap-2">
+            <span class="badge bg-primary d-flex align-items-center">
+              <i class="fas fa-clock me-1"></i> {{ course.duration }}
+            </span>
+            <span class="badge bg-secondary d-flex align-items-center">
+              <i class="fas fa-video me-1"></i> {{ course.video_count }} دروس
+            </span>
+            <span class="badge bg-success d-flex align-items-center">
+              <i class="fas fa-users me-1"></i> {{ course.student_count }} طلاب
+            </span>
+            {% if is_enrolled %}
+            <span class="badge bg-info d-flex align-items-center">
+              <i class="fas fa-chart-line me-1"></i>
+              <span id="course-progress-text"
+                >{{ progress_percentage }}% مكتمل</span
+              >
+            </span>
+            {% endif %}
+            <span
+              class="badge {% if course.level == 'beginner' %}bg-success {% elif course.level == 'intermediate' %}bg-warning text-dark {% elif course.level == 'advanced' %}bg-danger {% else %}bg-primary {% endif %} px-3 py-2 fs-6"
+            >
+              <i class="fa-solid fa-turn-up me-1"></i> {{
+              course.get_level_display }}
+            </span>
+          </div>
+
+          <!-- Video Player Area -->
+          <div id="videoPlayerArea" class="mb-4">
+            {% if course.preview_video_s3_key and not is_enrolled %}
+            <div class="ratio ratio-16x9">
+              <video
+                controls
+                playsinline
+                poster="{{ course.thumbnail.url }}"
+                id="mainVideoPlayer"
+              >
+                <source
+                  src="{{ course.get_preview_video_url }}"
+                  type="video/mp4"
+                />
+                متصفحك لا يدعم تشغيل الفيديو
+              </video>
+            </div>
+            <p class="mt-2 text-center text-info">فيديو معاينة للدورة</p>
+            {% elif is_enrolled and course.units.first.video %}
+            <div class="ratio ratio-16x9">
+              <video
+                controls
+                {%
+                if
+                course.units.first.video.preview_thumbnail
+                %}poster="{{ course.units.first.video.preview_thumbnail.url }}"
+                {%
+                endif
+                %}
+              >
+                <source
+                  src="{{ course.units.first.video.video_file.url }}"
+                  type="video/mp4"
+                />
+                متصفحك لا يدعم تشغيل الفيديو
+              </video>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <h5 class="mb-0">{{ course.units.first.title }}</h5>
+              <span class="badge bg-secondary"
+                >{{ course.units.first.video.display_duration }} دقيقة</span
+              >
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Error Templates -->
+          <div id="errorTemplates" style="display: none">
+            <div id="notEnrolledTemplate">
+              <div
+                class="locked-content text-center p-4 rounded-3"
+                style="background: #f8f9fa; border: 1px solid #eee"
+              >
+                <div class="icon-wrapper mb-3">
+                  <i class="fas fa-lock fa-4x text-danger"></i>
+                </div>
+                <h4 class="mb-3">هذا المحتوى مغلق</h4>
+                <p class="text-muted mb-4">
+                  يجب عليك التسجيل في الدورة أولاً لمشاهدة هذا الفيديو
+                </p>
+                {% if course.price > 0 %}
+                <a
+                  href="{% url 'courses:submit_purchase_request' %}?course_id={{ course.id }}"
+                  class="btn btn-primary w-100 mb-3"
+                >
+                  <i class="fas fa-shopping-cart me-2"></i> اشتري الدورة - {{
+                  course.price }} درهم
+                </a>
+                {% else %}
+                <form
+                  method="post"
+                  action="{% url 'courses:enroll' course.slug %}"
+                >
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-user-plus me-2"></i> سجل مجاناً
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </div>
+
+            <div id="loadingTemplate">
+              <div
+                class="ratio ratio-16x9 bg-dark d-flex align-items-center justify-content-center"
+              >
+                <div class="text-center text-white">
+                  <div
+                    class="spinner-border text-primary mb-3"
+                    style="width: 3rem; height: 3rem"
+                  ></div>
+                  <h5 class="mb-2">جاري تحميل المحتوى</h5>
+                  <p class="text-light mb-0">الرجاء الانتظار...</p>
+                </div>
+              </div>
+            </div>
+
+            <div id="errorTemplate">
+              <div
+                class="ratio ratio-16x9 bg-danger bg-opacity-10 d-flex align-items-center justify-content-center"
+              >
+                <div class="text-center text-danger p-4">
+                  <i class="fas fa-exclamation-triangle fa-4x mb-3"></i>
+                  <h4 class="mb-3">حدث خطأ</h4>
+                  <p class="error-details mb-4">
+                    تعذر تحميل الفيديو، يرجى المحاولة مرة أخرى
+                  </p>
+                  <button
+                    class="btn btn-outline-danger"
+                    onclick="window.location.reload()"
+                  >
+                    <i class="fas fa-sync-alt me-2"></i> إعادة المحاولة
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="card shadow-sm">
+            <div class="ratio ratio-16x9">
+              <img
+                src="{{ course.thumbnail.url }}"
+                class="img-fluid rounded-top"
+                alt="{{ course.title }}"
+                style="object-fit: cover; width: 100%; height: 100%"
+              />
+            </div>
+            <div class="card-body">
+              {% if is_enrolled %}
+              <div class="progress mb-3" style="height: 10px">
+                <div
+                  id="courseProgressBar"
+                  class="progress-bar bg-success"
+                  role="progressbar"
+                  style="width: {{ progress_percentage }}%"
+                  aria-valuenow="{{ progress_percentage }}"
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                ></div>
+              </div>
+              <a
+                href="#unit-{{ course.units.first.id }}"
+                class="btn btn-success w-100 mb-3"
+                onclick="playUnitVideo('{{ course.units.first.id }}')"
+              >
+                <i class="fas fa-play-circle me-2"></i> استمر في التعلم
+              </a>
+              {% else %} {% if course.price > 0 %}
+              <div
+                class="d-flex justify-content-between align-items-center mb-3"
+              >
+                <span class="h4 mb-0">{{ course.price }} درهم</span>
+              </div>
+              {% if request.user.is_authenticated %} {% if has_pending_request
+              %}
+              <button
+                class="btn btn-warning w-100 mb-3"
+                disabled
+                data-bs-toggle="tooltip"
+                title="طلب الشراء قيد المراجعة من قبل الإدارة"
+              >
+                <i class="fas fa-clock me-2"></i> قيد المراجعة
+              </button>
+              {% else %}
+              <a
+                href="{% url 'courses:submit_purchase_request' %}?course_id={{ course.id }}"
+                class="btn btn-primary w-100 mb-3"
+              >
+                <i class="fas fa-shopping-cart me-2"></i> اشتري الدورة
+              </a>
+              {% endif %} {% else %}
+              <a
+                href="{% url 'login' %}?next={% url 'courses:course_detail' course.slug %}"
+                class="btn btn-primary w-100 mb-3"
+              >
+                <i class="fas fa-shopping-cart me-2"></i> سجل الدخول للشراء
+              </a>
+              {% endif %} {% else %} {% if user.is_authenticated %}
+              <form
+                method="post"
+                action="{% url 'courses:enroll' course.slug %}"
+              >
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary w-100 mb-3">
+                  <i class="fas fa-user-plus me-2"></i> سجل مجاناً
+                </button>
+              </form>
+              {% else %}
+              <a
+                href="{% url 'login' %}?next={% url 'courses:enroll' course.slug %}"
+                class="btn btn-primary w-100 mb-3"
+              >
+                <i class="fas fa-user-plus me-2"></i> سجل مجاناً
+              </a>
+              {% endif %} {% endif %} {% endif %}
+
+              <ul class="list-group list-group-flush">
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  <span
+                    ><i class="fas fa-certificate me-2"></i> شهادة إتمام
+                    الدورة</span
+                  >
+
+                  {% if is_course_completed %}
+                  <a
+                    href="{% url 'courses:download_certificate' enrollment.id %}"
+                    class="btn btn-sm btn-outline-primary"
+                  >
+                    <i class="fas fa-download me-2"></i> تحميل
+                  </a>
+                  {% else %}
+                  <span class="badge bg-success">متاحة</span>
+                  {% endif %}
+                </li>
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  <span><i class="fas fa-infinity me-2"></i> وصول دائم</span>
+                  <span class="badge bg-success">نعم</span>
+                </li>
+                <li
+                  class="list-group-item d-flex justify-content-between align-items-center"
+                >
+                  <span
+                    ><i class="fas fa-mobile-alt me-2"></i> متاح على
+                    الجوال</span
+                  >
+                  <span class="badge bg-success">نعم</span>
+                </li>
+              </ul>
+
+              <!-- Completion Message Container -->
+              <div id="courseCompletionContainer" class="mt-3">
+                {% if is_course_completed %}
+                <div
+                  class="alert alert-success animate__animated animate__fadeInUp"
+                >
+                  <div class="d-flex align-items-start">
+                    <i class="fas fa-trophy fa-2x me-3 mt-1"></i>
+                    <div>
+                      <h4 class="alert-heading mb-2">تهانينا! 🎉</h4>
+                      <p class="mb-2">لقد أكملت الدورة بنجاح بنسبة 100%</p>
+                      <div class="d-grid">
+                        <a
+                          href="{% url 'courses:download_certificate' enrollment.id %}"
+                          class="btn btn-outline-success"
+                        >
+                          <i class="fas fa-download me-2"></i> تحميل الشهادة
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Course Tabs Section -->
+    <div class="course-tabs mb-5">
+      <ul class="nav nav-tabs" id="courseTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link active"
+            id="overview-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#overview"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-info-circle me-2"></i> نظرة عامة
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="curriculum-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#curriculum"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-list-ol me-2"></i> محتوى الدورة
+          </button>
+        </li>
+        <!-- Add Quizzes Tab -->
+        {% if course_has_quizzes %}
+        <li class="nav-item" role="presentation">
+          <button
+            class="nav-link"
+            id="quizzes-tab"
+            data-bs-toggle="tab"
+            data-bs-target="#quizzes"
+            type="button"
+            role="tab"
+          >
+            <i class="fas fa-question-circle me-2"></i> الاختبارات
+          </button>
+        </li>
+        {% endif %}
+      </ul>
+
+      <div
+        class="tab-content p-3 border border-top-0 rounded-bottom"
+        id="courseTabsContent"
+      >
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+          <h3 class="mb-4">ماذا ستتعلم في هذه الدورة؟</h3>
+          <div class="course-benefits">
+            {% for benefit in course.benefits_lines %}
+            <div class="benefit-item">
+              <i class="fas fa-check-circle text-success me-2"></i>
+              {{ benefit }}
+            </div>
+            {% empty %}
+            <p class="text-muted">لا توجد فوائد مسجلة لهذه الدورة</p>
+            {% endfor %}
+          </div>
+
+          <hr class="my-4" />
+
+          <h3 class="mb-4">وصف الدورة</h3>
+          <div class="course-description">
+            {{ course.long_description|safe }}
+          </div>
+        </div>
+
+        <!-- Curriculum Tab -->
+        <div class="tab-pane fade" id="curriculum" role="tabpanel">
+          <div class="accordion" id="curriculumAccordion">
+            {% for unit in course.units.all %}
+            <div
+              class="accordion-item border-0 rounded-3 shadow-sm mb-3 overflow-hidden"
+            >
+              <h2 class="accordion-header" id="heading-{{ unit.id }}">
+                <button
+                  class="accordion-button {% if not forloop.first %}collapsed{% endif %} flex-column flex-md-row text-start"
+                  type="button"
+                  onclick="playUnitVideo('{{ unit.id }}')"
+                  data-bs-toggle="collapse"
+                  data-bs-target="#collapse-{{ unit.id }}"
+                  aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}"
+                  aria-controls="collapse-{{ unit.id }}"
+                >
+                  <div class="d-flex align-items-center w-100">
+                    <i class="fas fa-play-circle text-primary me-2"></i>
+                    <span class="fw-bold">{{ unit.title }}</span>
+                  </div>
+
+                  <div
+                    class="d-flex align-items-center gap-2 mt-2 mt-md-0 ms-md-auto"
+                  >
+                    {% if is_enrolled %}
+                    <span
+                      class="progress-indicator"
+                      data-unit-id="{{ unit.id }}"
+                      data-enrollment-id="{{ enrollment.id }}"
+                    >
+                      {% if unit.id in completed_units %}
+                      <span
+                        class="badge bg-success completed-badge"
+                        title="مكتمل"
+                      >
+                        <i class="fas fa-check"></i>
+                      </span>
+                      {% else %}
+                      <i
+                        class="fas fa-circle-notch fa-spin text-muted d-none loading-icon"
+                      ></i>
+                      <span
+                        class="badge bg-secondary d-none completed-badge"
+                        title="مكتمل"
+                      >
+                        <i class="fas fa-check"></i>
+                      </span>
+                      {% endif %}
+                    </span>
+                    {% endif %} {% if unit.quiz and unit.quiz.is_published %}
+                    <span class="badge bg-warning text-dark ms-2">
+                      <i class="fas fa-question-circle me-1"></i> اختبار
+                    </span>
+                    {% endif %}
+                    <span
+                      class="badge bg-light text-dark border border-secondary rounded-pill small"
+                    >
+                      {{ unit.video.display_duration }} دقيقة
+                    </span>
+                  </div>
+                </button>
+              </h2>
+
+              <div
+                id="collapse-{{ unit.id }}"
+                class="accordion-collapse collapse {% if forloop.first %}show{% endif %}"
+                aria-labelledby="heading-{{ unit.id }}"
+                data-bs-parent="#curriculumAccordion"
+              >
+                <div class="accordion-body bg-white">
+                  {% if is_enrolled %} {% if unit.video.transcript %}
+                  <div class="video-transcript mt-3">
+                    <h6 class="fw-semibold">النص المصاحب:</h6>
+                    <p class="text-muted small">
+                      {{ unit.video.transcript|safe }}
+                    </p>
+                  </div>
+                  {% endif %}
+
+                  <!-- Add this quiz section -->
+                  {% if unit.quiz and unit.quiz.is_published %}
+                  <div class="quiz-section mt-4 border-top pt-3">
+                    <h6 class="fw-semibold mb-3">اختبار الوحدة</h6>
+
+                    {% if unit.quiz.best_attempt %}
+                    <div
+                      class="alert alert-{% if unit.quiz.best_attempt.is_passed %}success{% else %}danger{% endif %} mb-3"
+                    >
+                      <div
+                        class="d-flex justify-content-between align-items-center"
+                      >
+                        <span>
+                          <i
+                            class="fas fa-{% if unit.quiz.best_attempt.is_passed %}check-circle{% else %}times-circle{% endif %} me-2"
+                          ></i>
+                          نتيجتك: {{ unit.quiz.best_attempt.score|floatformat:2
+                          }}%
+                        </span>
+                        <a
+                          href="{% url 'quiz_result' unit.quiz.best_attempt.id %}"
+                          class="btn btn-sm btn-outline-secondary"
+                        >
+                          عرض التفاصيل
+                        </a>
+                      </div>
+                    </div>
+                    {% endif %}
+
+                    <a
+                      href="{% url 'courses:take_quiz' unit.quiz.id %}"
+                      class="btn btn-{% if unit.quiz.best_attempt %}outline-primary{% else %}primary{% endif %} w-100"
+                    >
+                      <i class="fas fa-question-circle me-2"></i>
+                      {% if unit.quiz.best_attempt %}إعادة الاختبار{% else %}بدء
+                      الاختبار{% endif %}
+                    </a>
+                  </div>
+                  {% endif %} {% else %}
+                  <div class="card bg-light border-0 text-center p-4">
+                    <div class="card-body">
+                      <div class="mb-3">
+                        <i class="fas fa-lock fa-2x text-warning"></i>
+                      </div>
+                      <h5 class="card-title mb-2">محتوى هذه الوحدة مغلق</h5>
+                      <p class="card-text text-muted mb-4">
+                        {% if course.price > 0 %} يجب شراء الدورة لعرض محتوى
+                        الوحدة. {% else %} يجب تسجيل الدخول للوصول إلى هذه
+                        الدورة المجانية. {% endif %}
+                      </p>
+
+                      {% if not user.is_authenticated %} {% if course.price > 0
+                      %}
+                      <a
+                        href="{% url 'login' %}?next={% url 'courses:submit_purchase_request' %}?course_id={{ course.id }}"
+                        class="btn btn-primary w-100 mb-2 rounded-pill"
+                      >
+                        <i class="fas fa-sign-in-alt me-2"></i> تسجيل الدخول
+                      </a>
+                      {% else %}
+                      <a
+                        href="{% url 'login' %}?next={% url 'courses:enroll' course.slug %}"
+                        class="btn btn-primary w-100 mb-2 rounded-pill"
+                      >
+                        <i class="fas fa-sign-in-alt me-2"></i> تسجيل الدخول
+                      </a>
+                      {% endif %} {% else %} {% if course.price > 0 %} {% if
+                      has_pending_request %}
+                      <button
+                        class="btn btn-warning w-100 mb-3"
+                        disabled
+                        data-bs-toggle="tooltip"
+                        title="طلب الشراء قيد المراجعة من قبل الإدارة"
+                      >
+                        <i class="fas fa-clock me-2"></i> قيد المراجعة
+                      </button>
+                      {% else %}
+                      <a
+                        href="{% url 'courses:submit_purchase_request' %}?course_id={{ course.id }}"
+                        class="btn btn-outline-primary w-100 rounded-pill"
+                      >
+                        <i class="fas fa-credit-card me-2"></i> شراء الدورة
+                      </a>
+                      {% endif %} {% else %}
+                      <form
+                        method="post"
+                        action="{% url 'courses:enroll' course.slug %}"
+                        class="w-100"
+                      >
+                        {% csrf_token %}
+                        <button
+                          type="submit"
+                          class="btn btn-primary w-100 rounded-pill"
+                        >
+                          <i class="fas fa-user-plus me-2"></i> سجل مجاناً
+                        </button>
+                      </form>
+                      {% endif %} {% endif %}
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <!-- Quizzes Tab -->
+        {% if course_has_quizzes %}
+        <div class="tab-pane fade" id="quizzes" role="tabpanel">
+          <div class="course-quizzes">
+            <h3 class="mb-4">اختبارات الدورة</h3>
+
+            {% for quiz in course_quizzes %}
+            <div class="card mb-4 shadow-sm">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <h5 class="card-title">{{ quiz.title }}</h5>
+                    <p class="card-text text-muted">{{ quiz.description }}</p>
+                    <small class="text-muted">
+                      <i class="fas fa-book me-1"></i> {{ quiz.unit.title }}
+                    </small>
+                  </div>
+                  <div>
+                    {% if quiz.best_attempt %}
+                    <span
+                      class="badge bg-{% if quiz.best_attempt.is_passed %}success{% else %}danger{% endif %}"
+                    >
+                      {{ quiz.best_attempt.score|floatformat:2 }}%
+                    </span>
+                    {% endif %}
+                  </div>
+                </div>
+
+                <div class="mt-3">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <small class="text-muted">
+                      <i class="fas fa-question-circle me-1"></i>
+                      {{ quiz.question_count }} أسئلة
+                    </small>
+
+                    {% if quiz.best_attempt %} {% if quiz.best_attempt.is_passed
+                    %}
+                    <span class="badge bg-success">
+                      <i class="fas fa-check-circle me-1"></i> ناجح
+                    </span>
+                    {% else %}
+                    <span class="badge bg-danger">
+                      <i class="fas fa-times-circle me-1"></i> راسب
+                    </span>
+                    {% endif %} {% endif %}
+                  </div>
+
+                  <div class="mt-2">
+                    {% if quiz.best_attempt %}
+                    <a
+                      href="{% url 'quiz_result' quiz.best_attempt.id %}"
+                      class="btn btn-sm btn-outline-primary me-2"
+                    >
+                      <i class="fas fa-eye me-1"></i> عرض النتيجة
+                    </a>
+                    {% endif %}
+
+                    <a
+                      href="{% url 'take_quiz' quiz.id %}"
+                      class="btn btn-sm btn-primary"
+                    >
+                      <i class="fas fa-play me-1"></i> {% if quiz.best_attempt
+                      %}إعادة المحاولة{% else %}بدء الاختبار{% endif %}
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Payment Modal would go here -->
+<!-- Toast Notification -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+  <div
+    id="completionToast"
+    class="toast"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+  >
+    <div class="toast-header bg-success text-white">
+      <strong class="me-auto">تم بنجاح</strong>
+      <button
+        type="button"
+        class="btn-close btn-close-white"
+        data-bs-dismiss="toast"
+        aria-label="Close"
+      ></button>
+    </div>
+    <div class="toast-body">تم تحديث تقدمك في الدورة بنجاح</div>
+  </div>
+</div>
+
+<script>
+  // Enhanced Video Player with Progress Tracking
+  function playUnitVideo(unitId) {
+    const videoPlayerArea = document.getElementById("videoPlayerArea");
+    if (!videoPlayerArea) return;
+
+    videoPlayerArea.innerHTML =
+      document.getElementById("loadingTemplate").innerHTML;
+    videoPlayerArea.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    fetch(`/courses/get-unit-video/${unitId}/`, {
+      headers: {
+        Accept: "application/json",
+        "X-Requested-With": "XMLHttpRequest",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      credentials: "same-origin",
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(`${response.status}||${JSON.stringify(errorData)}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        videoPlayerArea.innerHTML = `
+            <div class="ratio ratio-16x9 position-relative" style="overflow: hidden;">
+                <video controls autoplay ${
+                  data.preview_thumbnail
+                    ? `poster="${data.preview_thumbnail}"`
+                    : ""
+                }
+                    class="w-100" id="mainCourseVideo">
+                    <source src="${data.video_url}" type="video/mp4">
+                </video>
+                <div class="position-absolute bottom-0 start-0 end-0 p-2 bg-light bg-opacity-10" style="pointer-events: none;">
+                    <div class="progress" style="height: 5px;">
+                        <div class="progress-bar progress-bar-animated" role="progressbar" 
+                             id="videoProgressBar" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="video-meta mt-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">${data.unit_title}</h5>
+                    <span class="badge bg-secondary">${
+                      data.duration
+                    } دقيقة</span>
+                </div>
+                ${
+                  data.transcript
+                    ? `
+                <div class="transcript-toggle mt-2">
+                    <button class="btn btn-sm btn-outline-secondary" type="button" 
+                            data-bs-toggle="collapse" data-bs-target="#transcriptCollapse">
+                        <i class="fas fa-align-right me-1"></i> عرض النص المصاحب
+                    </button>
+                    <div class="collapse mt-2" id="transcriptCollapse">
+                        <div class="card card-body bg-light">
+                            ${data.transcript}
+                        </div>
+                    </div>
+                </div>
+                `
+                    : ""
+                }
+            </div>
+        `;
+
+        setupVideoPlayer(unitId);
+      })
+      .catch(handleVideoError);
+  }
+
+  function setupVideoPlayer(unitId) {
+    const videoElement = document.getElementById("mainCourseVideo");
+    const progressBar = document.getElementById("videoProgressBar");
+
+    if (videoElement) {
+      let progressReported = false;
+      let completionThreshold = 70; // Percentage to consider as completed
+
+      videoElement.addEventListener("timeupdate", function () {
+        if (this.duration) {
+          const percentWatched = (this.currentTime / this.duration) * 100;
+
+          // Update progress bar
+          if (progressBar) {
+            progressBar.style.width = `${percentWatched}%`;
+            if (percentWatched >= completionThreshold) {
+              progressBar.classList.replace("bg-primary", "bg-success");
+            }
+          }
+
+          // Mark as completed at threshold
+          if (percentWatched >= completionThreshold && !progressReported) {
+            progressReported = true;
+            markUnitAsCompleted(unitId);
+          }
+        }
+      });
+
+      // Handle video end as fallback
+      videoElement.addEventListener("ended", function () {
+        if (!progressReported) {
+          markUnitAsCompleted(unitId);
+        }
+      });
+
+      // Try autoplay
+      videoElement.play().catch((e) => {
+        console.log("Autoplay prevented:", e);
+        videoElement.controls = true;
+      });
+    }
+  }
+
+  function handleVideoError(error) {
+    const [status, errorJson] = error.message.split("||");
+    const errorData = errorJson ? JSON.parse(errorJson) : {};
+    const videoPlayerArea = document.getElementById("videoPlayerArea");
+
+    if (status === "403") {
+      videoPlayerArea.innerHTML = document.getElementById(
+        "notEnrolledTemplate"
+      ).innerHTML;
+    } else {
+      videoPlayerArea.innerHTML =
+        document.getElementById("errorTemplate").innerHTML;
+
+      if (errorData.message) {
+        const errorDetails = videoPlayerArea.querySelector(".error-details");
+        if (errorDetails) errorDetails.textContent = errorData.message;
+      }
+    }
+  }
+
+  function markUnitAsCompleted(unitId) {
+    const progressIndicator = document.querySelector(
+      `[data-unit-id="${unitId}"]`
+    );
+    if (!progressIndicator) return;
+
+    const enrollmentId = progressIndicator.getAttribute("data-enrollment-id");
+    const loadingIcon = progressIndicator.querySelector(".loading-icon");
+    const completedBadge = progressIndicator.querySelector(".completed-badge");
+
+    // Show loading state
+    if (loadingIcon) loadingIcon.classList.remove("d-none");
+
+    fetch("/courses/mark-unit-completed/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+        "X-Requested-With": "XMLHttpRequest",
+      },
+      body: JSON.stringify({
+        unit_id: unitId,
+        enrollment_id: enrollmentId,
+      }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Network response was not ok");
+        return response.json();
+      })
+      .then((data) => {
+        if (data.success) {
+          // Hide loading icon
+          if (loadingIcon) loadingIcon.classList.add("d-none");
+
+          // Show completed badge
+          if (completedBadge) {
+            completedBadge.classList.remove("d-none", "bg-secondary");
+            completedBadge.classList.add("bg-success");
+          }
+
+          // Update progress if needed
+          if (data.progress_percentage) {
+            updateCourseProgress(data.progress_percentage);
+          }
+
+          // Show toast notification
+          showCompletionToast();
+
+          // Handle full course completion
+          if (data.progress_percentage === 100) {
+            handleCourseCompletion();
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("Error marking unit as completed:", error);
+        if (loadingIcon) loadingIcon.classList.add("d-none");
+      });
+  }
+
+  function updateCourseProgress(percentage) {
+    const progressBar = document.getElementById("courseProgressBar");
+    const progressText = document.getElementById("course-progress-text");
+
+    if (progressBar) {
+      progressBar.style.width = `${percentage}%`;
+      progressBar.setAttribute("aria-valuenow", percentage);
+    }
+
+    if (progressText) {
+      progressText.textContent = `${percentage}% مكتمل`;
+    }
+  }
+
+  function handleCourseCompletion() {
+    showCourseCompletedMessage();
+
+    const continueBtn = document.querySelector(
+      '.btn-success[onclick^="playUnitVideo"]'
+    );
+    if (continueBtn) {
+      continueBtn.innerHTML =
+        '<i class="fas fa-trophy me-2"></i> الدورة مكتملة';
+      continueBtn.classList.replace("btn-success", "btn-warning");
+    }
+
+    // Mark as completed in backend
+    fetch("/courses/mark-course-completed/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": "{{ csrf_token }}",
+      },
+      body: JSON.stringify({
+        enrollment_id: document
+          .querySelector("[data-enrollment-id]")
+          .getAttribute("data-enrollment-id"),
+      }),
+    });
+
+    // Celebration effect
+    if (typeof confetti === "function") {
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+      });
+    }
+  }
+
+  function showCourseCompletedMessage() {
+    const container = document.getElementById("courseCompletionContainer");
+    if (!container) return;
+
+    container.innerHTML = `
+        <div class="alert alert-success animate__animated animate__fadeInUp">
+            <div class="d-flex align-items-start">
+                <i class="fas fa-trophy fa-2x me-3 mt-1"></i>
+                <div>
+                    <h4 class="alert-heading mb-2">تهانينا! 🎉</h4>
+                    <p class="mb-2">لقد أكملت الدورة بنجاح بنسبة 100%</p>
+                    <div class="d-grid">
+                        <a href="" class="btn btn-outline-success">
+                            <i class="fas fa-download me-2"></i> تحميل الشهادة
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+  }
+
+  function showCompletionToast() {
+    const toastEl = document.getElementById("completionToast");
+    if (toastEl) {
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+  }
+
+  // Initialize on page load
+  document.addEventListener("DOMContentLoaded", function () {
+    // Initialize preview video
+    const previewVideo = document.getElementById("mainVideoPlayer");
+    if (previewVideo) {
+      // previewVideo.play().catch(e => {
+      // console.log("Autoplay prevented:", e);
+      // previewVideo.controls = true;
+      // });
+      previewVideo.controls = true;
+    }
+
+    // Handle unit navigation
+    const urlHash = window.location.hash;
+    if (urlHash && window.location.search.includes("autoplay=true")) {
+      const unitId = urlHash.split("-")[1];
+      playUnitVideo(unitId);
+    }
+  });
+</script>
+{% endblock %}

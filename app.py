@@ -2,12 +2,20 @@ from flask import Flask, render_template, flash, redirect, url_for, request
 from forms import StudentForm, TeacherForm
 from peewee import *
 from datetime import datetime
+from werkzeug.utils import secure_filename
+import os
 
+
+
+
+UPLOAD_FOLDER = os.path.join('static','uploads')
 
 # create flask app
 
 app = Flask(__name__)
 app.secret_key = "code secret"
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 # create database
 
@@ -27,6 +35,7 @@ class Student(db.Model):
     fullname = CharField()
     tel = CharField()
     email = CharField(unique=True)
+    avatar = CharField(null=True)
     joining_date = DateTimeField(default=datetime.now, formats='%Y-%m-%d %H:%M:%S')
     group = ForeignKeyField(Group, backref='students', null=True)
     
@@ -41,7 +50,7 @@ class Teacher(db.Model):
     experience = IntegerField()
     subject = CharField()
     joining_date = DateTimeField(default=datetime.now, formats='%Y-%m-%d')
-    
+    avatar = CharField(null=True)
     class Meta:
         database = db
 
@@ -86,10 +95,19 @@ def add_student():
         fullname = form.fullname.data
         tel = form.tel.data
         email = form.email.data
+        avatar = form.avatar.data
+        filename = None
+        
+        if avatar:
+            filename = secure_filename(avatar.filename)
+            avatar_path = os.path.join(app.config['UPLOAD_FOLDER'],filename)
+            avatar.save(avatar_path)
+
         student = Student.create(
             fullname = fullname,
             tel = tel,
             email = email,
+            avatar = filename
         )
         flash('Student added successfully', 'success')
         return redirect(url_for('student_list'))    
@@ -125,12 +143,23 @@ def add_teacher():
     form = TeacherForm()
     if request.method == 'POST' and form.validate_on_submit():
         
+        avatar  = form.avatar.data        
+        filename = None
+        
+        if avatar:
+            filename = secure_filename(avatar.filename)
+            avatar_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            avatar.save(avatar_path)
+        
+        
+        
         Teacher.create(
             fullname = form.fullname.data,
             tel = form.tel.data,
             email = form.email.data,
             experience = form.experience.data,
             subject = form.subject.data,
+            avatar = filename,
         )
         flash('Teacher has been added successfully!', 'success')
         return redirect(url_for('teachers_list'))

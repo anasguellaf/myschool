@@ -4,7 +4,7 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
 
-        <form method="POST" action="">
+        <form method="POST" action="" enctype="multipart/form-data">
             {{ form.hidden_tag() }}
 
             <div class="mb-3">
@@ -31,6 +31,11 @@
             <div class="mb-3">
                 {{ form.subject.label(class="form-label") }}
                 {{ form.subject(class="form-control") }}
+            </div>
+
+            <div class="mb-3">
+                {{ form.avatar.label(class="form-label") }}
+                {{ form.avatar(class="form-control") }}
             </div>
 
             <!-- Full-Width Submit Button (Corrected 'd-grid') -->
